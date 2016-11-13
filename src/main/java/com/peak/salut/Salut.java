@@ -717,6 +717,11 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void discoverNetworkServices(final SalutCallback deviceNotSupported) {
+        discoverNetworkServices(null, null, deviceNotSupported);
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void discoverNetworkServices(@Nullable final SalutCallback onSuccess, @Nullable final SalutCallback onFailure, final SalutCallback deviceNotSupported) {
         isDiscovering = true;
 
         foundDevices.clear();
@@ -748,6 +753,9 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
             @Override
             public void onSuccess() {
                 Log.d(TAG, "Service discovery initiated.");
+                if (onSuccess != null) {
+                    onSuccess.call();
+                }
             }
 
             @Override
@@ -759,38 +767,36 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
                     disableWiFi(dataReceiver.context);
                     enableWiFi(dataReceiver.context);
                 }
+                if (onFailure != null) {
+                    onFailure.call();
+                }
             }
         });
-
     }
 
     public void discoverNetworkServices(SalutDeviceCallback onDeviceFound, boolean callContinously) {
-        if (!respondersAlreadySet) {
-            setupDNSRespondersWithDevice(onDeviceFound, callContinously);
-        }
-
+        setupDNSRespondersWithDevice(onDeviceFound, callContinously);
         discoverNetworkServices(deviceNotSupported);
     }
 
     public void discoverNetworkServices(SalutCallback onDeviceFound, boolean callContinously) {
-        if (!respondersAlreadySet) {
-            setupDNSResponders(onDeviceFound, callContinously);
-        }
-
+        setupDNSResponders(onDeviceFound, callContinously);
         discoverNetworkServices(deviceNotSupported);
     }
 
     public void discoverWithTimeout(SalutCallback onDevicesFound, SalutCallback onDevicesNotFound, int timeout) {
-        if (!respondersAlreadySet) {
-            setupDNSResponders();
-        }
-
+        setupDNSResponders();
         discoverNetworkServices(deviceNotSupported);
         devicesNotFoundInTime(onDevicesNotFound, onDevicesFound, timeout);
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void stopNetworkService(final boolean disableWiFi) {
+        stopNetworkService(null, null, disableWiFi);
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void stopNetworkService(@Nullable final SalutCallback onSuccess, @Nullable final SalutCallback onFailure, final boolean disableWiFi) {
         if (isRunningAsHost) {
             Log.v(TAG, "Stopping network service...");
             stopServiceDiscovery(true);
@@ -803,6 +809,9 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
                     @Override
                     public void onFailure(int reason) {
                         Log.d(TAG, "Could not end the service. Reason : " + reason);
+                        if(onFailure != null) {
+                            onFailure.call();
+                        }
                     }
 
                     @Override
@@ -812,6 +821,9 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
                             disableWiFi(dataReceiver.context); //Called here to give time for request to be disposed.
                         }
                         isRunningAsHost = false;
+                        if(onSuccess != null) {
+                            onSuccess.call();
+                        }
                     }
                 });
 
@@ -825,6 +837,11 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void stopServiceDiscovery(boolean shouldUnregister) {
+        stopServiceDiscovery(null, null, shouldUnregister);
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void stopServiceDiscovery(@Nullable final SalutCallback onSuccess, @Nullable final SalutCallback onFailure, boolean shouldUnregister) {
         isDiscovering = false;
         firstDeviceAlreadyFound = false;
 
@@ -842,11 +859,17 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
                 @Override
                 public void onSuccess() {
                     Log.v(TAG, "Successfully removed service discovery request.");
+                    if(onSuccess != null) {
+                        onSuccess.call();
+                    }
                 }
 
                 @Override
                 public void onFailure(int reason) {
                     Log.v(TAG, "Failed to remove service discovery request. Reason : " + reason);
+                    if(onFailure != null) {
+                        onFailure.call();
+                    }
                 }
             });
         }
