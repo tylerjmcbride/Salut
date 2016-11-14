@@ -202,8 +202,13 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
                         Log.e(Salut.TAG, "This device is still connected to an old host for some reason. A forced disconnect will be attempted.");
                         forceDisconnect();
                     }
-                    Log.v(Salut.TAG, "Successfully connected to another device.");
-                    startRegistrationForClient(new InetSocketAddress(info.groupOwnerAddress.getHostAddress(), SALUT_SERVER_PORT));
+
+                    if(info.groupOwnerAddress != null) {
+                        Log.v(Salut.TAG, "Successfully connected to another device.");
+                        startRegistrationForClient(new InetSocketAddress(info.groupOwnerAddress.getHostAddress(), SALUT_SERVER_PORT));
+                    } else {
+                        Log.v(Salut.TAG, "Failed to connected to another device. The group owner address is null.");
+                    }
                 }
             }
         });
