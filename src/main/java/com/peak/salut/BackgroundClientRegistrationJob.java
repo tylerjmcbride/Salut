@@ -1,5 +1,6 @@
 package com.peak.salut;
 
+import android.os.Handler;
 import android.util.Log;
 
 import com.arasthel.asyncjob.AsyncJob;
@@ -16,6 +17,7 @@ public class BackgroundClientRegistrationJob implements AsyncJob.OnBackgroundJob
 
     private Salut salutInstance;
     private InetSocketAddress hostDeviceAddress;
+    private final Handler handler;
     private final int BUFFER_SIZE = 65536;
     protected static boolean disableWiFiOnUnregister;
     protected static SalutCallback onRegistered;
@@ -23,10 +25,10 @@ public class BackgroundClientRegistrationJob implements AsyncJob.OnBackgroundJob
     protected static SalutCallback onUnregisterSuccess;
     protected static SalutCallback onUnregisterFailure;
 
-
     public BackgroundClientRegistrationJob(Salut salutInstance, InetSocketAddress hostDeviceAddress) {
         this.hostDeviceAddress = hostDeviceAddress;
         this.salutInstance = salutInstance;
+        this.handler = new Handler(salutInstance.dataReceiver.context.getMainLooper());
     }
 
 
@@ -64,7 +66,7 @@ public class BackgroundClientRegistrationJob implements AsyncJob.OnBackgroundJob
                 Log.d(Salut.TAG, "Registered Host | " + salutInstance.registeredHost.deviceName);
 
                 salutInstance.thisDevice.isRegistered = true;
-                salutInstance.dataReceiver.activity.runOnUiThread(new Runnable() {
+                handler.post(new Runnable() {
                     @Override
                     public void run() {
                         if (onRegistered != null)
@@ -84,7 +86,7 @@ public class BackgroundClientRegistrationJob implements AsyncJob.OnBackgroundJob
 
                 if (onUnregisterSuccess != null) //Success Callback.
                 {
-                    salutInstance.dataReceiver.activity.runOnUiThread(new Runnable() {
+                    handler.post(new Runnable() {
                         @Override
                         public void run() {
                             onUnregisterSuccess.call();
@@ -103,7 +105,7 @@ public class BackgroundClientRegistrationJob implements AsyncJob.OnBackgroundJob
             ex.printStackTrace();
 
             Log.e(Salut.TAG, "An error occurred while attempting to register or unregister.");
-            salutInstance.dataReceiver.activity.runOnUiThread(new Runnable() {
+            handler.post(new Runnable() {
                 @Override
                 public void run() {
                     if (onRegistrationFail != null && !salutInstance.thisDevice.isRegistered) //Prevents both callbacks from being called.
@@ -122,7 +124,7 @@ public class BackgroundClientRegistrationJob implements AsyncJob.OnBackgroundJob
         } finally {
 
             if (disableWiFiOnUnregister) {
-                Salut.disableWiFi(salutInstance.dataReceiver.activity);
+                Salut.disableWiFi(salutInstance.dataReceiver.context);
             }
             try {
                 registrationSocket.close();
