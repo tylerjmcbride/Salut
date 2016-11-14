@@ -362,14 +362,24 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
     }
 
     public void cancelConnecting() {
+        cancelConnecting(null, null);
+    }
+
+    public void cancelConnecting(@Nullable final SalutCallback onSuccess, @Nullable final SalutCallback onFailure) {
         manager.cancelConnect(channel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
+                if(onSuccess != null) {
+                    onSuccess.call();
+                }
                 Log.v(TAG, "Attempting to cancel connect.");
             }
 
             @Override
             public void onFailure(int reason) {
+                if(onFailure != null) {
+                    onFailure.call();
+                }
                 Log.v(TAG, "Failed to cancel connect, the device may not have been trying to connect.");
             }
         });
