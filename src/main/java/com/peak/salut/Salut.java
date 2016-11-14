@@ -374,7 +374,6 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
             }
         });
 
-        stopServiceDiscovery(true);
         connectingIsCanceled = true;
     }
 
