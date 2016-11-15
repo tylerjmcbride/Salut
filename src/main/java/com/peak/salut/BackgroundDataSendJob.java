@@ -17,13 +17,15 @@ public class BackgroundDataSendJob implements AsyncJob.OnBackgroundJob {
     private final int BUFFER_SIZE = 65536;
     private Salut salutInstance;
     private Object data;
+    private SalutCallback onSuccess;
     private SalutCallback onFailure;
     private SalutDevice device;
 
-    public BackgroundDataSendJob(SalutDevice device, Salut salutInstance, Object data, SalutCallback onFailure) {
+    public BackgroundDataSendJob(SalutDevice device, Salut salutInstance, Object data, SalutCallback onSuccess, SalutCallback onFailure) {
         this.data = data;
         this.device = device;
         this.salutInstance = salutInstance;
+        this.onSuccess = onSuccess;
         this.onFailure = onFailure;
     }
 
@@ -48,6 +50,9 @@ public class BackgroundDataSendJob implements AsyncJob.OnBackgroundJob {
             dataStreamToOtherDevice.flush();
             dataStreamToOtherDevice.close();
 
+            if(onSuccess != null) {
+                onSuccess.call();
+            }
             Log.d(Salut.TAG, "Successfully sent data.");
 
         } catch (Exception ex) {

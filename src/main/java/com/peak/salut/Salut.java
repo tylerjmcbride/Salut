@@ -277,8 +277,8 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
 
     }
 
-    private void sendData(final SalutDevice device, final Object data, @Nullable final SalutCallback onFailure) {
-        BackgroundDataSendJob sendDataToDevice = new BackgroundDataSendJob(device, this, data, onFailure);
+    private void sendData(final SalutDevice device, final Object data, @Nullable final SalutCallback onSuccess, @Nullable final SalutCallback onFailure) {
+        BackgroundDataSendJob sendDataToDevice = new BackgroundDataSendJob(device, this, data, onSuccess, onFailure);
         AsyncJob.doInBackground(sendDataToDevice);
     }
 
@@ -344,26 +344,26 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
         connectToDevice(device, onRegistrationFail);
     }
 
-    public void sendToAllDevices(final Object data, @Nullable final SalutCallback onFailure) {
+    public void sendToAllDevices(final Object data, @Nullable final SalutCallback onSuccess, @Nullable final SalutCallback onFailure) {
         if (isRunningAsHost) {
             for (SalutDevice registered : registeredClients) {
-                sendData(registered, data, onFailure);
+                sendData(registered, data, onSuccess, onFailure);
             }
         } else {
             Log.e(TAG, "This device is not the host and therefore cannot invoke this method.");
         }
     }
 
-    public void sendToHost(final Object data, @Nullable final SalutCallback onFailure) {
+    public void sendToHost(final Object data, @Nullable final SalutCallback onSuccess, @Nullable final SalutCallback onFailure) {
         if (!isRunningAsHost && thisDevice.isRegistered) {
-            sendData(registeredHost, data, onFailure);
+            sendData(registeredHost, data, onSuccess, onFailure);
         } else {
             Log.e(TAG, "This device is not either not registered or is the host.");
         }
     }
 
-    public void sendToDevice(final SalutDevice device, final Object data, @Nullable final SalutCallback onFailure) {
-        sendData(device, data, onFailure);
+    public void sendToDevice(final SalutDevice device, final Object data, @Nullable final SalutCallback onSuccess, @Nullable final SalutCallback onFailure) {
+        sendData(device, data, onSuccess, onFailure);
     }
 
     public void cancelConnecting() {
