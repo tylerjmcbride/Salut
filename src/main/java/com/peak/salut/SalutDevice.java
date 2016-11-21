@@ -5,6 +5,7 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import com.bluelinelabs.logansquare.annotation.JsonField;
 import com.bluelinelabs.logansquare.annotation.JsonObject;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @JsonObject
@@ -32,6 +33,18 @@ public class SalutDevice {
     protected String serviceAddress;
 
     public SalutDevice() {
+    }
+
+    public SalutDevice(SalutDevice device) {
+        this.serviceName = device.serviceName;
+        this.readableName = device.readableName;
+        this.instanceName = device.instanceName;
+        this.deviceName = device.deviceName;
+        this.macAddress = device.macAddress;
+        this.txtRecord = new HashMap(device.txtRecord.size());
+        for(Map.Entry<String, String> entry : txtRecord.entrySet()) {
+            this.txtRecord.put(entry.getKey(), entry.getValue());
+        }
     }
 
     public SalutDevice(WifiP2pDevice device, Map<String, String> txtRecord) {

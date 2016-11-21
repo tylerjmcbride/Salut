@@ -53,11 +53,11 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
     protected SalutDeviceCallback onDeviceRegisteredWithHost;
     protected SalutCallback unexpectedDisconnect;
 
-    public SalutDevice thisDevice;
-    public SalutDevice registeredHost;
-    public boolean isRunningAsHost = false;
-    public boolean isConnectedToAnotherDevice = false;
-    public boolean isDiscovering = false;
+    protected SalutDevice thisDevice;
+    protected SalutDevice registeredHost;
+    protected boolean isRunningAsHost = false;
+    protected boolean isConnectedToAnotherDevice = false;
+    protected boolean isDiscovering = false;
     private ServerSocket listenerServiceSocket;
     private ServerSocket salutServerSocket;
 
@@ -72,8 +72,8 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
 
     //Found Service Objects
     protected SalutDevice lastConnectedDevice;
-    public ArrayList<SalutDevice> foundDevices;
-    public ArrayList<SalutDevice> registeredClients;
+    protected ArrayList<SalutDevice> foundDevices;
+    protected ArrayList<SalutDevice> registeredClients;
 
     protected SalutDeviceCallback onDeviceUnregistered;
 
@@ -446,7 +446,7 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
         }
     }
 
-    protected void disconnectFromDevice() {
+    public void disconnectFromDevice() {
         manager.requestGroupInfo(channel, new WifiP2pManager.GroupInfoListener() {
             @Override
             public void onGroupInfoAvailable(final WifiP2pGroup group) {
@@ -887,5 +887,41 @@ public class Salut implements WifiP2pManager.ConnectionInfoListener {
                 }
             });
         }
+    }
+
+    public SalutDevice getThisDevice() {
+        return thisDevice;
+    }
+
+    public SalutDevice getRegisteredHost() {
+        return registeredHost;
+    }
+
+    public boolean isRunningAsHost() {
+        return isRunningAsHost;
+    }
+
+    public boolean isConnectedToAnotherDevice() {
+        return isConnectedToAnotherDevice;
+    }
+
+    public boolean isDiscovering() {
+        return isDiscovering;
+    }
+
+    public ArrayList<SalutDevice> getFoundDevices() {
+        ArrayList<SalutDevice> clonedFoundDevices = new ArrayList(this.foundDevices.size());
+        for(SalutDevice device : this.foundDevices) {
+            clonedFoundDevices.add(new SalutDevice(device));
+        }
+        return clonedFoundDevices;
+    }
+
+    public ArrayList<SalutDevice> getRegisteredClients() {
+        ArrayList<SalutDevice> clonedRegisteredClients = new ArrayList(this.registeredClients.size());
+        for(SalutDevice device : this.registeredClients) {
+            clonedRegisteredClients.add(new SalutDevice(device));
+        }
+        return clonedRegisteredClients;
     }
 }
